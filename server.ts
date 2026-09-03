@@ -2150,4 +2150,12 @@ async function startServer() {
   });
 }
 
-startServer();
+// In standard container/local environments, start the HTTP listener.
+// In Vercel serverless functions (process.env.VERCEL), the exported app handles requests directly.
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
+export { app };
+
