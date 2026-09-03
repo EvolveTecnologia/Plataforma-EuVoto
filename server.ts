@@ -29,18 +29,41 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 // Static handler for candidate photos (official TSE DivulgaCand repository)
 app.use('/fotos', (req, res, next) => {
   const cleanPath = req.path.replace(/^\//, '');
-  const filePath = path.join(process.cwd(), 'public', 'fotos', cleanPath);
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    if (cleanPath.endsWith('.svg') || content.trim().startsWith('<svg') || content.trim().startsWith('<?xml')) {
+  if (!cleanPath) return next();
+
+  let targetFile = path.join(process.cwd(), 'public', 'fotos', cleanPath);
+
+  // Fallback if .webp requested but .jpg exists or vice versa
+  if (!fs.existsSync(targetFile) || !fs.statSync(targetFile).isFile()) {
+    if (cleanPath.endsWith('.webp')) {
+      const altJpg = path.join(process.cwd(), 'public', 'fotos', cleanPath.replace(/\.webp$/, '.jpg'));
+      const altSvg = path.join(process.cwd(), 'public', 'fotos', cleanPath.replace(/\.webp$/, '.svg'));
+      if (fs.existsSync(altJpg) && fs.statSync(altJpg).isFile()) targetFile = altJpg;
+      else if (fs.existsSync(altSvg) && fs.statSync(altSvg).isFile()) targetFile = altSvg;
+    } else if (cleanPath.endsWith('.jpg') || cleanPath.endsWith('.jpeg')) {
+      const altWebp = path.join(process.cwd(), 'public', 'fotos', cleanPath.replace(/\.jpe?g$/, '.webp'));
+      const altSvg = path.join(process.cwd(), 'public', 'fotos', cleanPath.replace(/\.jpe?g$/, '.svg'));
+      if (fs.existsSync(altWebp) && fs.statSync(altWebp).isFile()) targetFile = altWebp;
+      else if (fs.existsSync(altSvg) && fs.statSync(altSvg).isFile()) targetFile = altSvg;
+    }
+  }
+
+  if (fs.existsSync(targetFile) && fs.statSync(targetFile).isFile()) {
+    const ext = path.extname(targetFile).toLowerCase();
+    const buffer = fs.readFileSync(targetFile);
+    const textStart = buffer.subarray(0, 100).toString('utf-8').trim();
+
+    if (ext === '.svg' || textStart.startsWith('<svg') || textStart.startsWith('<?xml')) {
       res.setHeader('Content-Type', 'image/svg+xml');
-    } else if (cleanPath.endsWith('.webp')) {
+    } else if (ext === '.webp') {
       res.setHeader('Content-Type', 'image/webp');
+    } else if (ext === '.png') {
+      res.setHeader('Content-Type', 'image/png');
     } else {
       res.setHeader('Content-Type', 'image/jpeg');
     }
     res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.send(content);
+    res.send(buffer);
     return;
   }
   next();

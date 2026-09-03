@@ -102,13 +102,23 @@ export const ResultadosView: React.FC<ResultadosViewProps> = ({ pesquisas, initi
 
   const generateMockResultados = (cargoStr: string, ufStr: string): ResultadoConsulta => {
     let matchingCandidates = FALLBACK_CANDIDATOS.filter(c => {
-      const matchCargo = c.cargo.toUpperCase() === cargoStr.toUpperCase();
-      const matchUf = cargoStr.toUpperCase() === 'PRESIDENTE' ? true : (c.uf === ufStr || c.uf === 'BR');
+      const cNorm = c.cargo.toUpperCase();
+      const targetNorm = cargoStr.toUpperCase();
+      const matchCargo = cNorm.includes(targetNorm) || targetNorm.includes(cNorm);
+      const matchUf = targetNorm.includes('PRESIDENTE') ? true : (c.uf === ufStr || c.uf === 'BR' || ufStr === 'BR' || c.uf === 'PA');
       return matchCargo && matchUf;
     });
 
     if (matchingCandidates.length === 0) {
-      matchingCandidates = FALLBACK_CANDIDATOS.filter(c => c.cargo.toUpperCase() === 'PRESIDENTE');
+      matchingCandidates = FALLBACK_CANDIDATOS.filter(c => {
+        const cNorm = c.cargo.toUpperCase();
+        const targetNorm = cargoStr.toUpperCase();
+        return cNorm.includes(targetNorm) || targetNorm.includes(cNorm);
+      });
+    }
+
+    if (matchingCandidates.length === 0) {
+      matchingCandidates = FALLBACK_CANDIDATOS.slice(0, 6);
     }
 
     // Assign realistic simulated mock vote counts

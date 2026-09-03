@@ -117,7 +117,16 @@ export const AdminDataDashboard: React.FC = () => {
 
   useEffect(() => {
     carregarDados();
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activeTabVisualizacao]);
 
   // Compute filtered ranking
   const getFilteredRanking = () => {

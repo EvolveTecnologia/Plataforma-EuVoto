@@ -28,14 +28,19 @@ export const PergunteAosDadosChat: React.FC<PergunteAosDadosChatProps> = ({ comp
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll internally if messages list has more than 1 message or loading changed
+    if (messages.length > 1 || loading) {
+      scrollToBottom();
+    }
   }, [messages, loading]);
 
   const handleSend = async (queryText?: string) => {
@@ -138,7 +143,7 @@ export const PergunteAosDadosChat: React.FC<PergunteAosDadosChatProps> = ({ comp
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#f8fafc]">
+      <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#f8fafc]">
         {messages.map(msg => {
           const isAi = msg.sender === 'gemini';
           return (
@@ -220,8 +225,6 @@ export const PergunteAosDadosChat: React.FC<PergunteAosDadosChatProps> = ({ comp
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Form */}

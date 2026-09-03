@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Candidato, Pesquisa, UsuarioPerfil } from '../types';
+import { FALLBACK_CANDIDATOS } from '../data/initialData';
 import { urnaAudio } from '../utils/audio';
 import confetti from 'canvas-confetti';
-import { Shield, AlertTriangle, CheckCircle2, RotateCcw, Award, RotateCw, Smartphone, Maximize2, ArrowLeft } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Shield, AlertTriangle, CheckCircle2, RotateCcw, Award, RotateCw, Smartphone, Maximize2, ArrowLeft, BookOpen, Check, HelpCircle, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface UrnaVotacaoProps {
   pesquisa: Pesquisa;
@@ -30,18 +31,32 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
   onCancelar,
   onOpenAuth
 }) => {
+  // Se a pesquisa for exclusiva para Presidência, foca no cargo de Presidente diretamente
+  const isPresidencialOnly = useMemo(() => {
+    const t = (pesquisa.titulo || '').toLowerCase();
+    const d = (pesquisa.descricao || '').toLowerCase();
+    return pesquisa.id === 'pesq_2026_01' || (t.includes('presid') && !t.includes('gerais') && !t.includes('governador'));
+  }, [pesquisa]);
+
   // Lista oficial e ordem de cargos do TSE (§5.4)
-  const cargosOrdem: CargoConfig[] = [
-    { id: 'deputadoFederal', nome: 'DEPUTADO FEDERAL', cargoCd: 6, digitos: 4, tipoVaga: 'proporcional' },
-    { id: 'deputadoEstadual', nome: ufEleitor === 'DF' ? 'DEPUTADO DISTRITAL' : 'DEPUTADO ESTADUAL', cargoCd: 7, digitos: 5, tipoVaga: 'proporcional' },
-    { id: 'senador1', nome: 'SENADOR — 1ª VAGA', cargoCd: 5, digitos: 3, tipoVaga: 'majoritaria' },
-    { id: 'senador2', nome: 'SENADOR — 2ª VAGA', cargoCd: 5, digitos: 3, tipoVaga: 'majoritaria' },
-    { id: 'governador', nome: 'GOVERNADOR', cargoCd: 3, digitos: 2, tipoVaga: 'majoritaria' },
-    { id: 'presidente', nome: 'PRESIDENTE DA REPÚBLICA', cargoCd: 1, digitos: 2, tipoVaga: 'majoritaria' }
-  ];
+  const cargosOrdem: CargoConfig[] = useMemo(() => {
+    if (isPresidencialOnly) {
+      return [
+        { id: 'presidente', nome: 'PRESIDENTE DA REPÚBLICA', cargoCd: 1, digitos: 2, tipoVaga: 'majoritaria' }
+      ];
+    }
+    return [
+      { id: 'deputadoFederal', nome: 'DEPUTADO FEDERAL', cargoCd: 6, digitos: 4, tipoVaga: 'proporcional' },
+      { id: 'deputadoEstadual', nome: ufEleitor === 'DF' ? 'DEPUTADO DISTRITAL' : 'DEPUTADO ESTADUAL', cargoCd: 7, digitos: 5, tipoVaga: 'proporcional' },
+      { id: 'senador1', nome: 'SENADOR — 1ª VAGA', cargoCd: 5, digitos: 3, tipoVaga: 'majoritaria' },
+      { id: 'senador2', nome: 'SENADOR — 2ª VAGA', cargoCd: 5, digitos: 3, tipoVaga: 'majoritaria' },
+      { id: 'governador', nome: 'GOVERNADOR', cargoCd: 3, digitos: 2, tipoVaga: 'majoritaria' },
+      { id: 'presidente', nome: 'PRESIDENTE DA REPÚBLICA', cargoCd: 1, digitos: 2, tipoVaga: 'majoritaria' }
+    ];
+  }, [isPresidencialOnly, ufEleitor]);
 
   const [cargoIndex, setCargoIndex] = useState(0);
-  const cargoAtual = cargosOrdem[cargoIndex];
+  const cargoAtual = cargosOrdem[cargoIndex] || cargosOrdem[0];
 
   // Estado da digitação
   const [digitosDigitados, setDigitosDigitados] = useState<string[]>([]);
@@ -50,6 +65,9 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
   const [isNumeroInexistente, setIsNumeroInexistente] = useState(false);
   const [isCarregandoCandidato, setIsCarregandoCandidato] = useState(false);
   const [erroAlerta, setErroAlerta] = useState<string | null>(null);
+
+  // Modal / Gaveta de Colinha de Candidatos
+  const [isColinhaAberta, setIsColinhaAberta] = useState(false);
 
   // Registro de escolhas por cargo
   const [votosRegistrados, setVotosRegistrados] = useState<Record<string, any>>({});
@@ -122,7 +140,19 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
     onVotoConcluido();
   };
 
-  const targetUf = cargoAtual.cargoCd === 1 ? 'BR' : ufEleitor;
+  const effectiveUf = (ufEleitor && ufEleitor !== 'BR') ? ufEleitor : 'PA';
+  const targetUf = cargoAtual.cargoCd === 1 ? 'BR' : effectiveUf;
+
+  // Candidatos disponíveis para a colinha deste cargo
+  const candidatosDoCargo = useMemo(() => {
+    return FALLBACK_CANDIDATOS.filter(c => {
+      const matchCargo = c.cargoCd === cargoAtual.cargoCd || 
+        c.cargo.toUpperCase().includes(cargoAtual.nome.toUpperCase()) || 
+        cargoAtual.nome.toUpperCase().includes(c.cargo.toUpperCase());
+      const matchUf = cargoAtual.cargoCd === 1 ? true : (c.uf === targetUf || c.uf === 'BR' || targetUf === 'BR' || c.uf === 'PA');
+      return matchCargo && matchUf;
+    });
+  }, [cargoAtual, targetUf]);
 
   // Consulta à API quando os dígitos são completados
   useEffect(() => {
@@ -166,19 +196,32 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
 
       if (res.ok) {
         const data = await res.json();
-        setCandidatoConsultado(data);
-        setIsNumeroInexistente(false);
-      } else {
-        // T5: Número inexistente -> voto será nulo
-        urnaAudio.tocarAlertaInexistente();
-        setCandidatoConsultado(null);
-        setIsNumeroInexistente(true);
+        if (data && data.nomeUrna) {
+          setCandidatoConsultado(data);
+          setIsNumeroInexistente(false);
+          setIsCarregandoCandidato(false);
+          return;
+        }
       }
-    } catch {
+    } catch {}
+
+    // Fallback robusto no cliente
+    const localMatch = FALLBACK_CANDIDATOS.find(
+      c => (c.cargoCd === cargoAtual.cargoCd || c.cargo.toUpperCase().includes(cargoAtual.nome.toUpperCase()) || cargoAtual.nome.toUpperCase().includes(c.cargo.toUpperCase())) &&
+           c.numero === numero &&
+           (cargoAtual.cargoCd === 1 || c.uf === targetUf || c.uf === 'BR' || targetUf === 'BR' || true)
+    );
+
+    if (localMatch) {
+      setCandidatoConsultado(localMatch);
+      setIsNumeroInexistente(false);
+    } else {
+      // T5: Número inexistente -> voto será nulo
+      urnaAudio.tocarAlertaInexistente();
+      setCandidatoConsultado(null);
       setIsNumeroInexistente(true);
-    } finally {
-      setIsCarregandoCandidato(false);
     }
+    setIsCarregandoCandidato(false);
   };
 
   // Teclado numérico
@@ -195,6 +238,14 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
     if (digitosDigitados.length < cargoAtual.digitos) {
       setDigitosDigitados(prev => [...prev, digito.toString()]);
     }
+  };
+
+  // Preencher número a partir da colinha
+  const handleSelecionarColinha = (cand: Candidato) => {
+    urnaAudio.tocarBeepTecla();
+    setIsBranco(false);
+    setDigitosDigitados(cand.numero.split(''));
+    setIsColinhaAberta(false);
   };
 
   // Tecla BRANCO
@@ -264,7 +315,7 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
     };
     setVotosRegistrados(novosVotos);
 
-    // Se for o último cargo (Presidente) -> Finaliza a cédula oficial
+    // Se for o último cargo -> Finaliza a cédula oficial
     if (cargoIndex === cargosOrdem.length - 1) {
       await finalizarVotacao(novosVotos);
     } else {
@@ -276,6 +327,17 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
       setIsNumeroInexistente(false);
       setErroAlerta(null);
     }
+  };
+
+  // Pular ou selecionar outro cargo diretamente
+  const handleTrocarCargo = (idx: number) => {
+    if (isFim || isSubmitting) return;
+    setCargoIndex(idx);
+    setDigitosDigitados([]);
+    setIsBranco(false);
+    setCandidatoConsultado(null);
+    setIsNumeroInexistente(false);
+    setErroAlerta(null);
   };
 
   // Grava a cédula completa na API e dispara áudio e confetes
@@ -299,29 +361,26 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        // T6: Erro de voto já existente
-        setErroSubmissao(errData.mensagem || 'Você já votou nesta pesquisa.');
+      if (res.ok) {
+        const data = await res.json();
+        setComprovanteCodigo(data.comprovante?.hash || `VOTO-${Math.random().toString(36).substring(2, 9).toUpperCase()}`);
+        setIsFim(true);
+        urnaAudio.tocarSomConfirmacaoUrna();
+
+        confetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#0B3D91', '#16A34A', '#EAB308', '#2563EB']
+        });
+      } else {
+        const err = await res.json();
+        setErroSubmissao(err.mensagem || err.error || 'Erro ao registrar voto na cédula digital.');
         urnaAudio.tocarAlertaInexistente();
-        setIsSubmitting(false);
-        return;
       }
-
-      // Som oficial e inconfundível da Urna Eletrônica!
-      urnaAudio.tocarSomConfirmacaoUrna();
-
-      // Dispara chuva de confetes
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 }
-      });
-
-      setComprovanteCodigo(`EUVOTO-${Math.random().toString(36).substring(2, 10).toUpperCase()}`);
-      setIsFim(true);
     } catch {
-      setErroSubmissao('Erro de conexão ao enviar o voto. Verifique sua rede e tente novamente.');
+      setErroSubmissao('Falha de conexão com a API de votação.');
+      urnaAudio.tocarAlertaInexistente();
     } finally {
       setIsSubmitting(false);
     }
@@ -346,15 +405,56 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={handleSairCabine}
-          className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
-          title="Voltar para a tela anterior de pesquisas"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Voltar à Pesquisa</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsColinhaAberta(true)}
+            className="text-xs font-black text-white bg-[#0B3D91] hover:bg-[#123F8F] px-3.5 py-2 rounded-xl transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+            title="Abrir colinha com os números de todos os candidatos deste cargo"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-300" />
+            <span>Colinha de Candidatos ({candidatosDoCargo.length})</span>
+          </button>
+
+          <button
+            onClick={handleSairCabine}
+            className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+            title="Voltar para a tela anterior de pesquisas"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Voltar</span>
+          </button>
+        </div>
       </div>
+
+      {/* Cargo Navigation Pills (§5.4) */}
+      {!isFim && cargosOrdem.length > 1 && (
+        <div className="mb-4 overflow-x-auto pb-2">
+          <div className="flex items-center gap-2 min-w-max">
+            <span className="text-xs font-bold text-slate-500 mr-1">Cargos da Cédula:</span>
+            {cargosOrdem.map((c, idx) => {
+              const isCurrent = idx === cargoIndex;
+              const hasVoted = !!votosRegistrados[c.id];
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => handleTrocarCargo(idx)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isCurrent
+                      ? 'bg-[#0B3D91] text-white shadow-md ring-2 ring-blue-300'
+                      : hasVoted
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
+                      : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-100'
+                  }`}
+                >
+                  {hasVoted && <Check className="w-3 h-3 text-emerald-600" />}
+                  <span>{idx + 1}. {c.nome.replace(' DA REPÚBLICA', '')}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* T6 Alert if Double Vote Attempt */}
       {erroSubmissao && (
@@ -653,6 +753,101 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
         </div>
 
       </motion.div>
+
+      {/* Modal / Painel "Colinha de Candidatos Oficiais" */}
+      <AnimatePresence>
+        {isColinhaAberta && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col border border-slate-200 overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="p-4 sm:p-5 bg-[#0B3D91] text-white flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/10 rounded-xl">
+                    <BookOpen className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black tracking-tight">Colinha Oficial do Eleitor</h2>
+                    <p className="text-xs text-blue-100">
+                      Candidatos a {cargoAtual.nome} • {targetUf === 'BR' ? 'Nacional' : `Estado: ${targetUf}`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsColinhaAberta(false)}
+                  className="p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Candidates Grid / List */}
+              <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3">
+                <p className="text-xs text-slate-500 mb-3">
+                  Selecione o candidato desejado para preencher automaticamente o número na tela da urna eletrônica:
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {candidatosDoCargo.map((cand) => (
+                    <div
+                      key={cand.id}
+                      onClick={() => handleSelecionarColinha(cand)}
+                      className="p-3 rounded-xl border-2 border-slate-200 hover:border-[#0B3D91] hover:bg-blue-50/50 transition-all cursor-pointer flex items-center gap-3 group"
+                    >
+                      <img
+                        src={cand.fotoUrl}
+                        alt={cand.nomeUrna}
+                        className="w-14 h-16 object-cover rounded-lg border border-slate-300 bg-slate-200 shrink-0 group-hover:scale-105 transition-transform"
+                        onError={(e: any) => {
+                          e.target.src = '/fotos/default-avatar.svg';
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-black text-sm bg-[#0B3D91] text-white px-2 py-0.5 rounded-md">
+                            {cand.numero}
+                          </span>
+                          <span className="text-xs font-bold text-slate-600 truncate">{cand.sigla}</span>
+                        </div>
+                        <div className="font-black text-slate-900 text-sm mt-1 truncate group-hover:text-[#0B3D91]">
+                          {cand.nomeUrna}
+                        </div>
+                        {cand.vice && (
+                          <div className="text-[11px] text-slate-500 truncate">
+                            Vice: {cand.vice.nomeUrna}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {candidatosDoCargo.length === 0 && (
+                  <div className="text-center py-8 text-slate-500 text-xs">
+                    Nenhum candidato registrado para este cargo nesta UF. Você pode digitar qualquer número ou votar em BRANCO.
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsColinhaAberta(false)}
+                  className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                >
+                  Fechar Colinha
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
