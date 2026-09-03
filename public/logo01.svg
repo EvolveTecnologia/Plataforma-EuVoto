@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" width="720" height="180" fill="none">
+  <defs>
+    <linearGradient id="logoBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="50%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#0E3A97"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0F2B66" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Blue Rounded Box with Checkmark -->
+  <g filter="url(#softShadow)">
+    <rect x="20" y="20" width="140" height="140" rx="36" fill="url(#logoBlueGrad)"/>
+    <!-- Subtle inner border / highlight -->
+    <rect x="21" y="21" width="138" height="138" rx="35" stroke="white" stroke-opacity="0.25" stroke-width="2"/>
+    <!-- Crisp White Checkmark -->
+    <path d="M52 92 L78 118 L126 62" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Typography -->
+  <!-- Top line: Plataforma Eu Voto -->
+  <text x="195" y="96" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="52" font-weight="900" letter-spacing="-1.5">
+    <tspan fill="#09285E">Plataforma </tspan>
+    <tspan fill="#0E833B">Eu </tspan>
+    <tspan fill="#09285E">Voto</tspan>
+  </text>
+
+  <!-- Bottom line: Seu Voto, Sua Voz -->
+  <text x="200" y="142" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="33" font-weight="600" fill="#4B627E" letter-spacing="-0.5">
+    Seu Voto, Sua Voz
+  </text>
+</svg>

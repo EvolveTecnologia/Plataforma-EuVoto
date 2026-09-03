@@ -1,0 +1,152 @@
+{
+  "entities": {
+    "Usuario": {
+      "title": "Usuario",
+      "description": "Dados cadastrais complementares do eleitor com hash de CPF e consentimento LGPD",
+      "type": "object",
+      "properties": {
+        "nome": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 100 },
+        "sexo": { "type": "string", "enum": ["MASCULINO", "FEMININO", "OUTRO", "NAO_INFORMADO"] },
+        "dtNascimento": { "type": "string", "maxLength": 10 },
+        "idade": { "type": "number" },
+        "celular": { "type": "string", "maxLength": 20 },
+        "cpfHash": { "type": "string", "maxLength": 64 },
+        "municipio": { "type": "string", "maxLength": 80 },
+        "uf": { "type": "string", "maxLength": 2 },
+        "pushToken": { "type": "string", "maxLength": 300 },
+        "optInPush": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["nome", "email", "cpfHash", "municipio", "uf"]
+    },
+    "Pesquisa": {
+      "title": "Pesquisa",
+      "description": "Pesquisa eleitoral cadastrada com período e abrangência",
+      "type": "object",
+      "properties": {
+        "titulo": { "type": "string", "maxLength": 200 },
+        "descricao": { "type": "string", "maxLength": 1000 },
+        "inicio": { "type": "string" },
+        "fim": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "ativa", "encerrada", "publicada"] },
+        "ufs": { "type": "array" },
+        "metodologia": { "type": "string", "maxLength": 2000 },
+        "createdBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["titulo", "inicio", "fim", "status", "ufs"]
+    },
+    "Candidato": {
+      "title": "Candidato",
+      "description": "Candidato oficial importado e normalizado do TSE",
+      "type": "object",
+      "properties": {
+        "ano": { "type": "number" },
+        "uf": { "type": "string", "maxLength": 2 },
+        "cargoCd": { "type": "number" },
+        "cargo": { "type": "string", "maxLength": 50 },
+        "numero": { "type": "string", "maxLength": 10 },
+        "sequencial": { "type": "string", "maxLength": 30 },
+        "nome": { "type": "string", "maxLength": 150 },
+        "nomeUrna": { "type": "string", "maxLength": 80 },
+        "nomeSocial": { "type": "string", "maxLength": 80 },
+        "situacao": { "type": "string", "maxLength": 40 },
+        "sigla": { "type": "string", "maxLength": 20 },
+        "partido": { "type": "string", "maxLength": 100 },
+        "federacao": { "type": "string", "maxLength": 100 },
+        "composicaoFederacao": { "type": "string", "maxLength": 200 },
+        "chapaId": { "type": "string", "maxLength": 40 },
+        "coligacao": { "type": "string", "maxLength": 200 },
+        "fotoUrl": { "type": "string", "maxLength": 500 },
+        "genero": { "type": "string", "maxLength": 20 },
+        "ufNascimento": { "type": "string", "maxLength": 2 },
+        "dtNascimento": { "type": "string", "maxLength": 10 },
+        "ocupacao": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["ano", "uf", "cargoCd", "cargo", "numero", "nomeUrna", "sigla"]
+    },
+    "Voto": {
+      "title": "Voto",
+      "description": "Cédula de votação segura do usuário, create-only, ID pesquisaId_uid",
+      "type": "object",
+      "properties": {
+        "pesquisaId": { "type": "string", "maxLength": 100 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "cargos": { "type": "object" },
+        "ts": { "type": "string" }
+      },
+      "required": ["pesquisaId", "uid", "cargos"]
+    },
+    "Agregado": {
+      "title": "Agregado",
+      "description": "Contador transacional de votos para geração instantânea de resultados",
+      "type": "object",
+      "properties": {
+        "pesquisaId": { "type": "string", "maxLength": 100 },
+        "uf": { "type": "string", "maxLength": 2 },
+        "cargo": { "type": "string", "maxLength": 50 },
+        "numero": { "type": "string", "maxLength": 10 },
+        "count": { "type": "number" }
+      },
+      "required": ["pesquisaId", "uf", "cargo", "numero", "count"]
+    },
+    "EtlLog": {
+      "title": "EtlLog",
+      "description": "Registro de auditoria e status de processamento de lote CSV/ZIP do TSE",
+      "type": "object",
+      "properties": {
+        "arquivo": { "type": "string", "maxLength": 150 },
+        "uf": { "type": "string", "maxLength": 2 },
+        "ano": { "type": "number" },
+        "totalLinhas": { "type": "number" },
+        "inseridos": { "type": "number" },
+        "rejeitados": { "type": "number" },
+        "status": { "type": "string", "enum": ["processando", "sucesso", "erro"] },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["uf", "ano", "status"]
+    },
+    "ConfigLanding": {
+      "title": "ConfigLanding",
+      "description": "CMS para seções públicas editáveis da landing page",
+      "type": "object",
+      "properties": {
+        "secao": { "type": "string", "maxLength": 50 },
+        "titulo": { "type": "string", "maxLength": 150 },
+        "conteudo": { "type": "string", "maxLength": 4000 },
+        "atualizadoEm": { "type": "string" }
+      },
+      "required": ["secao", "titulo"]
+    }
+  },
+  "firestore": {
+    "/usuarios/{uid}": {
+      "schema": "Usuario",
+      "description": "Perfil e dados complementares obrigatórios do eleitor com anonimização de CPF"
+    },
+    "/pesquisas/{id}": {
+      "schema": "Pesquisa",
+      "description": "Pesquisas eleitorais ativas e publicadas"
+    },
+    "/candidatos/{id}": {
+      "schema": "Candidato",
+      "description": "Candidatos carregados pela esteira ETL a partir do repositório de dados TSE"
+    },
+    "/votos/{pesquisaId_uid}": {
+      "schema": "Voto",
+      "description": "Cédulas de votação imutáveis com ID único por pesquisa e usuário"
+    },
+    "/agregados/{id}": {
+      "schema": "Agregado",
+      "description": "Totalização em tempo real de votos por pesquisa, UF, cargo e candidato"
+    },
+    "/etl_logs/{id}": {
+      "schema": "EtlLog",
+      "description": "Auditoria de importações de dados do TSE"
+    },
+    "/config_landing/{secao}": {
+      "schema": "ConfigLanding",
+      "description": "Configurações de conteúdo da landing page"
+    }
+  }
+}

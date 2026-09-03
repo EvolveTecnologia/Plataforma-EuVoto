@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520" width="400" height="520">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="60%" stop-color="#14532D" />
+      <stop offset="100%" stop-color="#15803D" />
+    </linearGradient>
+    <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.4" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Base Card Background -->
+  <rect width="400" height="520" rx="24" fill="url(#bgGrad)" />
+  
+  <!-- Subtle Brazilian Grid Overlay -->
+  <g opacity="0.08" stroke="#FFFFFF" stroke-width="1">
+    <line x1="0" y1="80" x2="400" y2="80" />
+    <line x1="0" y1="160" x2="400" y2="160" />
+    <line x1="0" y1="240" x2="400" y2="240" />
+    <line x1="0" y1="320" x2="400" y2="320" />
+    <line x1="80" y1="0" x2="80" y2="520" />
+    <line x1="160" y1="0" x2="160" y2="520" />
+    <line x1="240" y1="0" x2="240" y2="520" />
+    <line x1="320" y1="0" x2="320" y2="520" />
+  </g>
+
+  <!-- TSE Official Top Header -->
+  <rect x="20" y="20" width="360" height="42" rx="10" fill="#0B3D91" opacity="0.9" />
+  <text x="36" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#FFFFFF" letter-spacing="1">JUSTIÇA ELEITORAL • TSE</text>
+  <text x="364" y="46" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="800" fill="#FDE047">ELEIÇÕES 2026</text>
+
+  <!-- Central Portrait Avatar Placeholder with Artistic Monogram -->
+  <g transform="translate(110, 85)" filter="url(#shadow)">
+    <circle cx="90" cy="90" r="85" fill="url(#avatarGrad)" stroke="#FFFFFF" stroke-width="4" />
+    <!-- Candidate Silhouette / Head Shape -->
+    <path d="M 55,165 C 55,125 70,110 90,110 C 110,110 125,125 125,165 Z" fill="#E2E8F0" opacity="0.95" />
+    <circle cx="90" cy="80" r="34" fill="#E2E8F0" opacity="0.95" />
+    <!-- Monogram Initials Badge -->
+    <rect x="62" y="118" width="56" height="26" rx="6" fill="#15803D" stroke="#FFFFFF" stroke-width="1.5" />
+    <text x="90" y="136" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LA</text>
+  </g>
+
+  <!-- Candidate Electoral Number Pill (Urna Digit) -->
+  <g transform="translate(20, 260)" filter="url(#shadow)">
+    <rect width="90" height="52" rx="14" fill="#FFFFFF" />
+    <text x="45" y="38" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" fill="#0F172A">28</text>
+  </g>
+
+  <!-- Party Pill -->
+  <g transform="translate(120, 268)">
+    <rect width="84" height="36" rx="10" fill="#FFFFFF" fill-opacity="0.2" stroke="#FFFFFF" stroke-width="1" />
+    <text x="162" y="291" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="900" fill="#FFFFFF">PRTB</text>
+  </g>
+
+  <!-- Cargo Badge -->
+  <g transform="translate(214, 268)">
+    <rect width="166" height="36" rx="10" fill="#F59E0B" />
+    <text x="297" y="291" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="900" fill="#FFFFFF" letter-spacing="0.5">VICE-PRESIDENTE</text>
+  </g>
+
+  <!-- Candidate Urna Name (Bold Primary Title) -->
+  <text x="24" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="900" fill="#FFFFFF">LEONARDO AVALANCHE</text>
+
+  <!-- Candidate Full Official Name -->
+  <text x="24" y="380" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#CBD5E1">LEONARDO ALVES DE ARAUJO</text>
+
+  <!-- Metadata Container -->
+  <rect x="20" y="405" width="360" height="95" rx="14" fill="#000000" fill-opacity="0.3" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1" />
+
+  <!-- Info Grid -->
+  <text x="36" y="432" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#94A3B8" text-transform="uppercase">REGISTRO TSE (SQ):</text>
+  <text x="36" y="452" font-family="monospace" font-size="13" font-weight="700" fill="#38BDF8">280002553883</text>
+
+  <text x="210" y="432" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#94A3B8" text-transform="uppercase">SITUAÇÃO CANDIDATURA:</text>
+  <text x="210" y="452" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" fill="#4ADE80">DEFERIDO (OFICIAL)</text>
+
+  <text x="36" y="482" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#94A3B8" text-transform="uppercase">ARQUIVO DIVULGACAND:</text>
+  <text x="36" y="493" font-family="monospace" font-size="11" font-weight="600" fill="#E2E8F0">FBR280002553883_div.jpg</text>
+
+  <!-- Security Seal Checkmark Icon -->
+  <g transform="translate(340, 464)">
+    <circle cx="14" cy="14" r="14" fill="#16A34A" />
+    <path d="M 8 14 L 12 18 L 20 10" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>

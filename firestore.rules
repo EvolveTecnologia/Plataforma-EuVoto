@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.admin == true ||
+        request.auth.token.email == 'aplicativoeduca@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Usuários: dados complementares protegidos por LGPD
+    match /usuarios/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create, update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Candidatos: leitura pública para consulta e votação
+    match /candidatos/{candidatoId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Pesquisas: leitura pública para eleitores
+    match /pesquisas/{pesquisaId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Votos: Create-only pelo dono, chave única {pesquisaId}_{uid} impede voto duplo
+    match /votos/{votoId} {
+      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Agregados: Totalização de resultados
+    match /agregados/{agregadoId} {
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
+    }
+
+    // Logs de ETL
+    match /etl_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    // CMS da Landing Page
+    match /config_landing/{secao} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Notificações e mensagens
+    match /notificacoes/{notifId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /mensagens/{msgId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

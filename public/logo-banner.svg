@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 160" fill="none">
+  <defs>
+    <linearGradient id="logoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#123F8F"/>
+      <stop offset="100%" stop-color="#0B3D91"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon -->
+  <rect x="15" y="15" width="130" height="130" rx="32" fill="url(#logoBg)"/>
+  <path d="M50 80 L72 102 L112 58" stroke="white" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Text -->
+  <g font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif">
+    <text x="175" y="80" font-size="46" font-weight="800" fill="#0B3D91" letter-spacing="-1">Plataforma <tspan fill="#16A34A">Eu</tspan> Voto</text>
+    <text x="175" y="122" font-size="28" font-weight="600" fill="#475569" letter-spacing="-0.5">Seu Voto, Sua Voz</text>
+  </g>
+</svg>
