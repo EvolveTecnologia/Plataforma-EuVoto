@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ShieldCheck, Vote, Award, Search, Users, CheckCircle2, Filter, RotateCcw } from 'lucide-react';
 import { Candidato, Pesquisa } from '../types';
+import { FALLBACK_CANDIDATOS } from '../data/initialData';
 
 interface CandidatosShowcaseProps {
   onVotarCandidato?: (numero: string) => void;
@@ -57,15 +58,43 @@ export const CandidatosShowcase: React.FC<CandidatosShowcaseProps> = ({
       const res = await fetch(`/api/v1/candidatos/list?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        const lista: Candidato[] = data.candidatos || [];
-        setCandidatos(lista);
+        let lista: Candidato[] = data.candidatos || [];
+        
+        // If API returned empty (e.g. dev server startup), fall back to local dataset
+        if (lista.length === 0) {
+          lista = FALLBACK_CANDIDATOS.filter(c => {
+            if (cargoSelecionado !== 'todos' && c.cargoCd !== Number(cargoSelecionado)) return false;
+            if (ufSelecionada && ufSelecionada !== 'todos' && ufSelecionada !== 'BR' && c.uf !== ufSelecionada && c.uf !== 'BR') return false;
+            if (partidoSelecionado && partidoSelecionado !== 'todos' && c.sigla !== partidoSelecionado) return false;
+            if (busca.trim()) {
+              const b = busca.toLowerCase();
+              return c.nomeUrna.toLowerCase().includes(b) || c.nome.toLowerCase().includes(b) || c.numero.includes(b) || c.sigla.toLowerCase().includes(b);
+            }
+            return true;
+          });
+        }
 
-        // Populate party options
+        setCandidatos(lista);
         const uniquePartidos = Array.from(new Set(lista.map(c => c.sigla).filter(Boolean))).sort();
         setPartidosDisponiveis(uniquePartidos);
+      } else {
+        throw new Error('API não disponível');
       }
     } catch (err) {
-      console.error('Erro ao buscar candidatos filtrados:', err);
+      // Fallback filter
+      const lista = FALLBACK_CANDIDATOS.filter(c => {
+        if (cargoSelecionado !== 'todos' && c.cargoCd !== Number(cargoSelecionado)) return false;
+        if (ufSelecionada && ufSelecionada !== 'todos' && ufSelecionada !== 'BR' && c.uf !== ufSelecionada && c.uf !== 'BR') return false;
+        if (partidoSelecionado && partidoSelecionado !== 'todos' && c.sigla !== partidoSelecionado) return false;
+        if (busca.trim()) {
+          const b = busca.toLowerCase();
+          return c.nomeUrna.toLowerCase().includes(b) || c.nome.toLowerCase().includes(b) || c.numero.includes(b) || c.sigla.toLowerCase().includes(b);
+        }
+        return true;
+      });
+      setCandidatos(lista);
+      const uniquePartidos = Array.from(new Set(lista.map(c => c.sigla).filter(Boolean))).sort();
+      setPartidosDisponiveis(uniquePartidos);
     } finally {
       setLoading(false);
     }

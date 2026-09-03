@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UsuarioPerfil, Pesquisa, ConfigLanding, NotificacaoPush } from './types';
+import { DEFAULT_PESQUISAS } from './data/initialData';
 import { Navbar } from './components/Navbar';
 import { LandingView } from './components/LandingView';
 import { UserAreaView } from './components/UserAreaView';
@@ -29,8 +30,8 @@ export default function App() {
   const [userAreaTab, setUserAreaTab] = useState<UserTabType>('home');
   const [origemVotacao, setOrigemVotacao] = useState<'user' | 'landing'>('landing');
   const [selectedUf, setSelectedUf] = useState<string>(() => currentUser?.uf || 'PA');
-  const [pesquisas, setPesquisas] = useState<Pesquisa[]>([]);
-  const [activePesquisaUrna, setActivePesquisaUrna] = useState<Pesquisa | null>(null);
+  const [pesquisas, setPesquisas] = useState<Pesquisa[]>(DEFAULT_PESQUISAS);
+  const [activePesquisaUrna, setActivePesquisaUrna] = useState<Pesquisa | null>(DEFAULT_PESQUISAS[0] || null);
   const [notificacoes, setNotificacoes] = useState<NotificacaoPush[]>([]);
   const [configLanding, setConfigLanding] = useState<ConfigLanding>({
     sobreTitulo: 'Democracia Digital Segura e Confiável',
@@ -292,8 +293,8 @@ export default function App() {
         )}
       </main>
 
-      {/* Global Site Footer */}
-      {currentView !== 'urna' && (
+      {/* Global Site Footer (Oculto na Urna, Área do Usuário e Área do Administrador) */}
+      {currentView !== 'urna' && currentView !== 'user' && currentView !== 'admin' && (
         <Footer
           onNavigate={handleNavigation}
           onOpenAuth={() => setCurrentView('login')}

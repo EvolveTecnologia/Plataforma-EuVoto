@@ -1,6 +1,6 @@
 {
   "name": "Plataforma Eu Voto V1",
-  "description": "Plataforma cívica oficial de pesquisas eleitorais auditadas, simulação da urna eletrônica brasileira e inteligência de dados eleitorais das Eleições Gerais 2026. Seu Voto, Sua Voz.",
+  "description": "A Plataforma Eu Voto ideal para pesquisas eleitorais, simulação de votação oficial e inteligência de dados eleitorais. Seu Voto, Sua Voz.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

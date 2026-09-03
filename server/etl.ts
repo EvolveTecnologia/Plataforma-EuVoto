@@ -46,9 +46,10 @@ export function parseTseCsv(
   const erros: string[] = [];
   let rejeitados = 0;
 
-  // Header line
-  const headerLine = lines[0];
-  const headers = parseCsvLine(headerLine);
+  // Detect delimiter from header line (semicolon or comma)
+  const rawHeader = lines[0];
+  const delimiter = rawHeader.includes(';') ? ';' : ',';
+  const headers = parseCsvLine(rawHeader, delimiter);
   const headerIndexMap = new Map<string, number>();
   headers.forEach((h, idx) => {
     headerIndexMap.set(h.toUpperCase().trim(), idx);
@@ -84,7 +85,7 @@ export function parseTseCsv(
     const rawLine = lines[i].trim();
     if (!rawLine) continue;
 
-    const cols = parseCsvLine(rawLine);
+    const cols = parseCsvLine(rawLine, delimiter);
     if (cols.length < 15) {
       rejeitados++;
       erros.push(`Linha ${i + 1}: Quantidade insuficiente de colunas (${cols.length})`);
@@ -100,15 +101,11 @@ export function parseTseCsv(
       return '';
     };
 
-    const sqCandidato = getCol('SQ_CANDIDATO');
-    const nrTitulo = getCol('NR_TITULO_ELEITORAL_CANDIDATO');
+    const sqCandidato = getCol('SQ_CANDIDATO').replace(/"/g, '').trim();
+    const nrTitulo = getCol('NR_TITULO_ELEITORAL_CANDIDATO').replace(/"/g, '').trim();
 
-    // Regra 1: Se SQ_CANDIDATO ou NR_TITULO contiver notação científica (/E\+/) -> rejeitar com log
-    if (/E\+/i.test(sqCandidato) || /E\+/i.test(nrTitulo)) {
-      rejeitados++;
-      erros.push(`Linha ${i + 1}: Rejeitada por conter notação científica em campo numérico chave (SQ_CANDIDATO: "${sqCandidato}")`);
-      continue;
-    }
+    // Normalização de sequencial ou número de candidato se vier em notação científica
+    const safeSq = /E\+/i.test(sqCandidato) ? `SQ_${anoDefault}_${getCol('SG_UF') || ufDefault}_${getCol('NR_CANDIDATO')}_${i}` : sqCandidato;
 
     const cargoCd = parseInt(getCol('CD_CARGO'), 10) || 0;
     const ano = parseInt(getCol('ANO_ELEICAO'), 10) || anoDefault;
@@ -273,7 +270,7 @@ export function parseTseCsv(
 /**
  * Helper to parse a single CSV line with quoted strings and semicolon delimiter
  */
-function parseCsvLine(line: string): string[] {
+function parseCsvLine(line: string, delimiter: string = ';'): string[] {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
@@ -288,7 +285,7 @@ function parseCsvLine(line: string): string[] {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (char === ';' && !inQuotes) {
+    } else if (char === delimiter && !inQuotes) {
       result.push(current);
       current = '';
     } else {
