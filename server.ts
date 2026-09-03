@@ -26,6 +26,39 @@ const PORT = 3000;
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
+// Direct handler for Open Graph preview images (ogv1.png, ogv1.jpg, og.png, og.jpg)
+app.get(['/ogv1.png', '/ogv1.jpg', '/og.png', '/og.jpg', '/og-1200x630.png', '/og-1200x630.jpg'], (req, res) => {
+  const reqFilename = path.basename(req.path);
+  const possiblePaths = [
+    path.join(process.cwd(), 'public', reqFilename),
+    path.join(process.cwd(), 'dist', reqFilename),
+    path.join(process.cwd(), 'public', 'ogv1.png'),
+    path.join(process.cwd(), 'dist', 'ogv1.png')
+  ];
+
+  let targetPath = '';
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+      targetPath = p;
+      break;
+    }
+  }
+
+  if (targetPath) {
+    const ext = path.extname(targetPath).toLowerCase();
+    const isPng = ext === '.png';
+    res.setHeader('Content-Type', isPng ? 'image/png' : 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    const fileBuf = fs.readFileSync(targetPath);
+    res.setHeader('Content-Length', fileBuf.length);
+    res.send(fileBuf);
+    return;
+  }
+
+  res.status(404).send('Image not found');
+});
+
 // Static handler for candidate photos (official TSE DivulgaCand repository)
 app.use('/fotos', (req, res, next) => {
   const cleanPath = req.path.replace(/^\//, '');
@@ -2148,6 +2181,38 @@ app.get('/fotos/:ano/:uf/:numero.webp', (req: Request, res: Response) => {
   res.send(svg);
 });
 
+// Helper to inject absolute URLs for Open Graph crawlers (WhatsApp, Facebook, Twitter, Telegram)
+function injectAbsoluteOg(html: string, req: Request): string {
+  const host = req.get('x-forwarded-host') || req.get('host') || 'plataformaeuvoto.org.br';
+  const proto = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+  const baseUrl = `${proto}://${host}`;
+  const fullOgUrl = `${baseUrl}/ogv1.png`;
+  const currentUrl = `${baseUrl}${req.originalUrl || req.url || '/'}`;
+
+  return html
+    .replace(/<meta property="og:url"[^>]*\/>/g, '')
+    .replace(
+      /<meta property="og:image" content="[^"]*" \/>/g,
+      `<meta property="og:image" content="${fullOgUrl}" />\n    <meta property="og:url" content="${currentUrl}" />`
+    )
+    .replace(
+      /<meta property="og:image:secure_url" content="[^"]*" \/>/g,
+      `<meta property="og:image:secure_url" content="${fullOgUrl}" />`
+    )
+    .replace(
+      /<meta name="twitter:image" content="[^"]*" \/>/g,
+      `<meta name="twitter:image" content="${fullOgUrl}" />`
+    )
+    .replace(
+      /<meta itemprop="image" content="[^"]*" \/>/g,
+      `<meta itemprop="image" content="${fullOgUrl}" />`
+    )
+    .replace(
+      /<link rel="image_src" href="[^"]*" \/>/g,
+      `<link rel="image_src" href="${fullOgUrl}" />`
+    );
+}
+
 // ==========================================
 // Vite Middleware / SPA Static Serving
 // ==========================================
@@ -2162,9 +2227,18 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.use(express.static(distPath, { index: false }));
+    app.get('*', (req: Request, res: Response) => {
+      const htmlPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(htmlPath)) {
+        let html = fs.readFileSync(htmlPath, 'utf8');
+        html = injectAbsoluteOg(html, req);
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.send(html);
+      } else {
+        res.sendFile(path.join(process.cwd(), 'index.html'));
+      }
     });
   }
 
