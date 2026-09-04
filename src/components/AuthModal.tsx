@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UsuarioPerfil } from '../types';
 import { validarCPF, mascararCPF, mascararCelular, gerarHashCpf } from '../utils/cpf';
-import { X, CheckSquare, ShieldCheck, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, CheckSquare, ShieldCheck, Mail, Lock, AlertCircle, ArrowRight, User } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -326,6 +326,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   />
                 </svg>
                 <span>Entrar com o Google</span>
+              </button>
+
+              {/* Entrar como Eleitor Demo */}
+              <button
+                id="btn-login-eleitor-demo"
+                type="button"
+                disabled={isLoading}
+                onClick={() => {
+                  const demoUser: UsuarioPerfil = {
+                    uid: 'usr_eleitor_demo',
+                    nome: 'Eleitor Cidadão do Pará',
+                    email: 'eleitor.cidadao@euvoto.org.br',
+                    sexo: 'FEMININO',
+                    dtNascimento: '1996-08-20',
+                    idade: 30,
+                    celular: '(91) 98877-6655',
+                    cpfHash: 'sha256_eleitor_demo_hash_2026',
+                    cpfMascarado: '***.456.789-**',
+                    municipio: 'Ananindeua',
+                    uf: 'PA',
+                    optInPush: true,
+                    isAdmin: false,
+                    createdAt: new Date().toISOString()
+                  };
+                  onSuccessLogin(demoUser);
+                  onClose();
+                }}
+                className="w-full flex items-center justify-center gap-2.5 bg-blue-50/80 hover:bg-blue-100 text-[#0B3D91] font-bold py-3 px-4 rounded-xl border border-blue-200/80 shadow-2xs transition-all active:scale-[0.99] cursor-pointer disabled:opacity-60 text-xs sm:text-sm mt-2.5"
+              >
+                <User className="w-4 h-4 text-[#0B3D91] shrink-0" />
+                <span>Entrar como Eleitor Demo</span>
               </button>
 
               <div className="mt-5 text-center text-xs text-slate-500">

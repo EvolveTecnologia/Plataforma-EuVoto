@@ -612,15 +612,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => handleQuickLogin('eleitor')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-400/40 text-blue-200 text-xs font-bold transition-all cursor-pointer"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>Entrar como Eleitor Demo</span>
-              </button>
-
-              <button
-                type="button"
                 onClick={() => handleQuickLogin('admin')}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/40 border border-amber-400/40 text-amber-300 text-xs font-bold transition-all cursor-pointer"
               >
@@ -675,13 +666,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         {/* Floating White Card */}
         <div className="w-full max-w-sm sm:max-w-md bg-white text-slate-900 rounded-3xl p-5 sm:p-8 shadow-2xl border border-slate-200 relative my-auto">
           
-          {/* Brand Logo Header */}
+          {/* Brand Logo Header (Aumentado em 30%) */}
           <div className="text-center mb-5">
-            <div className="flex justify-center mb-2.5">
+            <div className="flex justify-center mb-3">
               <img
                 src="/logo01.png"
                 alt="Plataforma Eu Voto"
-                className="h-10 sm:h-11 w-auto object-contain"
+                className="h-13 sm:h-14 lg:h-[58px] w-auto object-contain transition-all"
                 onError={(e: any) => {
                   e.currentTarget.src = '/logo-icon.svg';
                 }}
@@ -884,7 +875,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 </span>
               </div>
 
-              {/* BOTÃO 2: BOTÃO DO GOOGLE (INSIRIDO DIRETAMENTE ABAIXO DE ENTRAR NA PLATAFORMA) */}
+              {/* BOTÃO 2: BOTÃO DO GOOGLE (INSERIDO DIRETAMENTE ABAIXO DE ENTRAR NA PLATAFORMA) */}
               <button
                 id="btn-google-auth"
                 type="button"
@@ -911,6 +902,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   />
                 </svg>
                 <span>Entrar com o Google</span>
+              </button>
+
+              {/* BOTÃO 3: ENTRAR COMO ELEITOR DEMO (INSERIDO LOGO ABAIXO DO GOOGLE COM RESPONSIVIDADE) */}
+              <button
+                id="btn-eleitor-demo-auth"
+                type="button"
+                disabled={isLoading}
+                onClick={() => handleQuickLogin('eleitor')}
+                className="w-full flex items-center justify-center gap-2.5 bg-blue-50/80 hover:bg-blue-100 text-[#0B3D91] font-bold py-3 px-4 rounded-xl border border-blue-200/80 shadow-2xs hover:border-blue-300 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-60 text-xs sm:text-sm mt-2.5"
+              >
+                <User className="w-4 h-4 text-[#0B3D91] shrink-0" />
+                <span>Entrar como Eleitor Demo</span>
               </button>
             </form>
           )}
