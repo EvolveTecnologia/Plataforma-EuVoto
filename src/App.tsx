@@ -187,6 +187,35 @@ export default function App() {
     );
   }
 
+  // Full-screen Urna Eletrônica Votacao view matching user request
+  if (currentView === 'urna' && activePesquisaUrna) {
+    return (
+      <UrnaVotacao
+        pesquisa={activePesquisaUrna}
+        user={currentUser}
+        ufEleitor={selectedUf}
+        onVotoConcluido={() => {
+          carregarPesquisas();
+          if (origemVotacao === 'user' && currentUser) {
+            setUserAreaTab('pesquisas');
+            setCurrentView('user');
+          } else {
+            setCurrentView('landing');
+          }
+        }}
+        onCancelar={() => {
+          if (origemVotacao === 'user' && currentUser) {
+            setUserAreaTab('pesquisas');
+            setCurrentView('user');
+          } else {
+            setCurrentView('landing');
+          }
+        }}
+        onOpenAuth={() => setCurrentView('login')}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7FB] text-[#0F172A] font-sans selection:bg-[#0B3D91] selection:text-white">
       
@@ -240,32 +269,6 @@ export default function App() {
             }}
             onLogout={handleLogout}
             onVerResultados={() => setCurrentView('resultados')}
-          />
-        )}
-
-        {currentView === 'urna' && activePesquisaUrna && (
-          <UrnaVotacao
-            pesquisa={activePesquisaUrna}
-            user={currentUser}
-            ufEleitor={selectedUf}
-            onVotoConcluido={() => {
-              carregarPesquisas();
-              if (origemVotacao === 'user' && currentUser) {
-                setUserAreaTab('resultados');
-                setCurrentView('user');
-              } else {
-                setCurrentView('resultados');
-              }
-            }}
-            onCancelar={() => {
-              if (origemVotacao === 'user' && currentUser) {
-                setUserAreaTab('pesquisas');
-                setCurrentView('user');
-              } else {
-                setCurrentView('landing');
-              }
-            }}
-            onOpenAuth={() => setCurrentView('login')}
           />
         )}
 
