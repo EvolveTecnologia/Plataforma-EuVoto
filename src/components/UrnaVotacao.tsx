@@ -560,7 +560,7 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
               {/* Top: Cargo Header */}
               <div>
                 <div className="flex justify-between items-center text-xs font-bold text-slate-600 mb-1">
-                  <span>JUSTIÇA ELEITORAL</span>
+                  <span>PESQUISA ELEITORAL</span>
                   <span>{cargoIndex + 1} de {cargosOrdem.length}</span>
                 </div>
                 <div className="text-xs uppercase font-extrabold text-slate-700 tracking-wider">
@@ -721,7 +721,7 @@ export const UrnaVotacao: React.FC<UrnaVotacaoProps> = ({
           <div className="text-center pb-3 mb-2 border-b border-gray-700">
             <div className="flex items-center justify-center gap-2 text-white font-extrabold text-sm tracking-wider">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <span>JUSTIÇA ELEITORAL</span>
+              <span>PESQUISA ELEITORAL</span>
             </div>
             <div className="text-[10px] text-gray-400">Terminal do Eleitor • Criptografia Segura</div>
           </div>
