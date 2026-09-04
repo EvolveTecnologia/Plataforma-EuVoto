@@ -13,7 +13,7 @@ const FAQ_ITEMS: FaqItem[] = [
     id: 'faq-1',
     categoria: 'eleicoes',
     pergunta: 'Como funciona o simulador da Urna Eletrônica na Plataforma Eu Voto?',
-    resposta: 'O simulador reproduz com fidelidade a ordem oficial de votação definida pelo Tribunal Superior Eleitoral (TSE) para as Eleições Gerais de 2026: Deputado Federal (4 dígitos), Deputado Estadual (5 dígitos), Senador 1ª Vaga (3 dígitos), Senador 2ª Vaga (3 dígitos, bloqueando repetição), Governador (2 dígitos) e Presidente da República (2 dígitos). A interface conta com áudio sintetizado oficial do teclado, alertas sonoros e o som "Pililiiii" ao concluir na tela FIM.'
+    resposta: 'O simulador reproduz com fidelidade a ordem oficial de votação definida pelo Tribunal Superior Eleitoral (TSE) para as Eleições Gerais de 2026: Deputado Federal (4 dígitos), Deputado Estadual (5 dígitos), Senador 1ª Vaga (3 dígitos), Senador 2ª Vaga (3 dígitos, bloqueando repetição), Governador (2 dígitos) e Presidente da República (2 dígitos). A interface conta com áudio sintetizado oficial do teclado, alertas sonoros ao concluir na tela FIM.'
   },
   {
     id: 'faq-2',

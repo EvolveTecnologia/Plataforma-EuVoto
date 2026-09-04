@@ -15,7 +15,7 @@ export const QuemSomos: React.FC = () => {
   const pilares = [
     {
       icon: Scale,
-      titulo: 'Independência & Neutralidade',
+      titulo: 'Independência e Neutralidade',
       desc: 'Sem viés político, financeiro ou partidário. Atuamos com imparcialidade científica absoluta para retratar a vontade soberana do eleitor brasileiro.'
     },
     {
@@ -25,7 +25,7 @@ export const QuemSomos: React.FC = () => {
     },
     {
       icon: Users,
-      titulo: 'Amostragem Ampla & Precisa',
+      titulo: 'Amostragem Ampla e Precisa',
       desc: 'Metodologia probabilística com cobertura demográfica real em todas as 27 Unidades da Federação e estratificação por sexo, faixa etária e município.'
     },
     {

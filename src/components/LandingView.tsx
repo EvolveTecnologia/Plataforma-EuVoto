@@ -12,7 +12,6 @@ import {
   Check,
   Sparkles,
   ShieldCheck,
-  Volume2,
   Lock,
   Layers
 } from 'lucide-react';
@@ -65,20 +64,20 @@ export const LandingView: React.FC<LandingViewProps> = ({
           src="https://jornaluniao.com.br/media/uploads/2026/08/pauta_26833.webp"
           alt="Eleições Gerais 2026 no Brasil • Plataforma Eu Voto"
           referrerPolicy="no-referrer"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transform hover:scale-100 transition-transform duration-1000 opacity-55 mix-blend-luminosity"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transform hover:scale-100 transition-transform duration-1000 opacity-80"
           onError={(e: any) => {
             // Defensive graceful fallback to generated high-res Brazil 2026 election asset
             e.currentTarget.src = '/src/assets/images/eleicoes_2026_banner_1788411115538.jpg';
           }}
         />
 
-        {/* Cinematic Multi-Layer Gradient Overlays for Supreme Readability */}
-        <div className="absolute inset-0 bg-linear-to-r from-[#07152B] via-[#07152B]/85 to-[#07152B]/40 z-10" />
-        <div className="absolute inset-0 bg-linear-to-t from-[#07152B] via-transparent to-[#07152B]/75 z-10" />
+        {/* Cinematic Multi-Layer Gradient Overlays with 40% Reduced Opacity for Clearer Hero Image */}
+        <div className="absolute inset-0 bg-linear-to-r from-[#07152B]/60 via-[#07152B]/50 to-[#07152B]/25 z-10" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#07152B]/60 via-transparent to-[#07152B]/45 z-10" />
         
         {/* Brazilian Democratic Glows */}
-        <div className="absolute -top-32 -left-32 w-[34rem] h-[34rem] bg-[#0B3D91]/40 rounded-full blur-3xl z-10" />
-        <div className="absolute -bottom-32 right-10 w-[34rem] h-[34rem] bg-[#16A34A]/25 rounded-full blur-3xl z-10" />
+        <div className="absolute -top-32 -left-32 w-[34rem] h-[34rem] bg-[#0B3D91]/25 rounded-full blur-3xl z-10" />
+        <div className="absolute -bottom-32 right-10 w-[34rem] h-[34rem] bg-[#16A34A]/20 rounded-full blur-3xl z-10" />
 
         {/* Foreground Hero Content Centered in High-Contrast Grid */}
         <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 my-auto space-y-7 text-white">
@@ -142,12 +141,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
               <span>Sigilo Criptográfico SHA-256</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Volume2 className="w-4 h-4 text-amber-400" />
-              <span>Áudio Oficial da Urna</span>
-            </div>
-            <div className="flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-blue-400" />
-              <span>Base TSE 2026 Integrada (26 Imagens)</span>
+              <span>Base TSE 2026</span>
             </div>
           </div>
 
